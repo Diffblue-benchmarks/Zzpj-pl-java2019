@@ -1,0 +1,322 @@
+buildCmd: cd "./mocking/mocking_second_exercise"; mvn -e -X -Dmaven.test.skip=true compile
+testCmd: true
+lineLength: 4096
+skipVerification: true
+cbmcArguments:
+  # Do not generate coverage comments on generated tests.
+  java-generate-no-comments: true
+phases:
+  -
+  #Phase 0 PRETTY AND SIMPLE - Simple models, quick cover, pretty Tests, Do Not Test Private Method Directly
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 1500
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Constrain the size of arrays created in the analyzed code.
+      java-max-vla-length: 10000
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 1
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [ private ]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # Instrument the file as opposed to the function only
+      cover-only: file
+      # Set string input value  
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c"]
+  -
+  #Phase 1 PRETTY AND COMPLEX - Standard models, longer run time, pretty tests, Do Not Test Private Method Directly
+    timeout: 180
+    cbmcArguments:
+      # Use the standard models library
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: false
+      # Constrain the size of arrays created in the analyzed code.
+      java-max-vla-length: 10000
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Set string input value  
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c"]
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 2
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [ private ]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+  -
+  #Phase 2 Simple and Private Directly
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 1500
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Constrain the size of arrays created in the analyzed code.
+      java-max-vla-length: 10000
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 1
+      # Set string input value  
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c"]
+      # If the logs contain output of the following then proceed to phase X
+    nextPhase:
+      # If the function is not analysable then do not pass onto the next phase
+      not_analyzed: null
+  -
+  #Phase 3 Complex and Private Directly
+    timeout: 180
+    cbmcArguments:
+      # Use the standard models library.
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 3000
+      # Constrain the size of arrays created in the analyzed code.
+      java-max-vla-length: 10000
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Bound the length of input strings.
+      max-nondet-string-length: 30
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 3
+      # Set string input value  
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c"]
+  -
+  #Phase 4 EXCEPTIONS
+    timeout: 180
+    cbmcArguments:
+      # Use the standard models library.
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # Constrain the size of arrays created in the analyzed code.
+      java-max-vla-length: 10000
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Bound the length of input strings.
+      max-nondet-string-length: 30
+      # Add constraint that strings are printable
+      string-printable: false
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: true
+      # Set an upper bound on loop unwinding.
+  -
+    #PHASE 5 Big numbers and less contraints on inputs 
+    timeout: 300
+    cbmcArguments:
+      # Use the standard models library.
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: false
+      # Constrain the size of arrays created in the analyzed code.
+      java-max-vla-length: 10000
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 100
+      # Bound the length of input strings.
+      max-nondet-string-length: 100
+      # Add constraint that strings are printable
+      string-printable: false
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 6
+units:
+# Target TGF: 40.0
+#  >methods=4
+#  >complexity=40
+#  >construction=2.0
+#  >dependency=2.0
+ - target:
+   - dir: mocking/mockito-computer-start/target/classes
+     file: com/jpassion/mockito/Computer.class
+     sourceDir: mocking/mockito-computer-start/src/main/java
+     sourceFile: com/jpassion/mockito/Computer.java
+   - dir: mocking/mockito-computer-start/target/classes
+     file: com/jpassion/mockito/Adder.class
+     sourceDir: mocking/mockito-computer-start/src/main/java
+     sourceFile: com/jpassion/mockito/Adder.java
+   - dir: mocking/mockito-computer-start/target/classes
+     file: com/jpassion/mockito/Subtractor.class
+     sourceDir: mocking/mockito-computer-start/src/main/java
+     sourceFile: com/jpassion/mockito/Subtractor.java
+# Target TGF: 51.0
+#  >methods=6
+#  >complexity=51
+#  >construction=4.0
+#  >dependency=4.0
+ - target:
+   - dir: mocking/mocking_second_exercise/target/classes
+     file: transition/technologies/unittesting/basic/exercises/StackExercise.class
+     sourceDir: mocking/mocking_second_exercise/src/main/java
+     sourceFile: transition/technologies/unittesting/basic/exercises/StackExercise.java
+   - dir: mocking/mocking_second_exercise/target/classes
+     file: transition/technologies/unittesting/basic/exercises/StackEmptyException.class
+     sourceDir: mocking/mocking_second_exercise/src/main/java
+     sourceFile: transition/technologies/unittesting/basic/exercises/StackEmptyException.java
+# Target TGF: 40.0
+#  >methods=5
+#  >complexity=40
+#  >construction=2.0
+#  >dependency=2.0
+ - target:
+   - dir: mocking/mocking_second_exercise/target/classes
+     file: transition/technologies/unittesting/basic/calculator/SimpleCalculator.class
+     sourceDir: mocking/mocking_second_exercise/src/main/java
+     sourceFile: transition/technologies/unittesting/basic/calculator/SimpleCalculator.java
+   - dir: mocking/mocking_second_exercise/target/classes
+     file: transition/technologies/unittesting/basic/calculator/CannotDivideByZeroException.class
+     sourceDir: mocking/mocking_second_exercise/src/main/java
+     sourceFile: transition/technologies/unittesting/basic/calculator/CannotDivideByZeroException.java
+   - dir: mocking/mocking_second_exercise/target/classes
+     file: transition/technologies/unittesting/basic/calculator/CannotCalculateSquareRootOfNegativeNumber.class
+     sourceDir: mocking/mocking_second_exercise/src/main/java
+     sourceFile: transition/technologies/unittesting/basic/calculator/CannotCalculateSquareRootOfNegativeNumber.java
+# Target TGF: 31.0
+#  >methods=5
+#  >complexity=66
+#  >construction=3.0
+#  >dependency=1.83333333333
+ - target:
+   - dir: rxjava/out/test/classes
+     file: com/tt/TULTests.class
+     sourceDir: rxjava/src/test/java
+     sourceFile: com/tt/TULTests.java
+   - dir: rxjava/out/test/classes
+     file: com/tt/cache/CacheServer.class
+     sourceDir: rxjava/src/test/java
+     sourceFile: com/tt/cache/CacheServer.java
+# Target TGF: 180.0
+#  >methods=11
+#  >complexity=80
+#  >construction=22.5
+#  >dependency=10.0
+ - target:
+   - dir: mocking/mocking_second_exercise/target/classes
+     file: transition/technologies/unittesting/basic/collections/FellowTestFixture.class
+     sourceDir: mocking/mocking_second_exercise/src/main/java
+     sourceFile: transition/technologies/unittesting/basic/collections/FellowTestFixture.java
+   - dir: mocking/mocking_second_exercise/target/classes
+     file: transition/technologies/unittesting/basic/collections/FellowBuilder.class
+     sourceDir: mocking/mocking_second_exercise/src/main/java
+     sourceFile: transition/technologies/unittesting/basic/collections/FellowBuilder.java
+# Target TGF: 378.0
+#  >methods=2
+#  >complexity=42
+#  >construction=9.0
+#  >dependency=1.0
+ - target:
+   - dir: mocking/mockito-computer-start/target/classes
+     file: com/jpassion/mockito/Main.class
+     sourceDir: mocking/mockito-computer-start/src/main/java
+     sourceFile: com/jpassion/mockito/Main.java
+   - dir: mocking/mockito-computer-start/target/classes
+     file: com/jpassion/mockito/Adder.class
+     sourceDir: mocking/mockito-computer-start/src/main/java
+     sourceFile: com/jpassion/mockito/Adder.java
+   - dir: mocking/mockito-computer-start/target/classes
+     file: com/jpassion/mockito/Computer.class
+     sourceDir: mocking/mockito-computer-start/src/main/java
+     sourceFile: com/jpassion/mockito/Computer.java
+   - dir: mocking/mockito-computer-start/target/classes
+     file: com/jpassion/mockito/Subtractor.class
+     sourceDir: mocking/mockito-computer-start/src/main/java
+     sourceFile: com/jpassion/mockito/Subtractor.java
+# Target TGF: 35.6666666667
+#  >methods=4
+#  >complexity=49
+#  >construction=2.0
+#  >dependency=1.33333333333
+ - target:
+   - dir: spock-ex1/out/production/classes
+     file: app/UserController.class
+     sourceDir: spock-ex1/src/main/java
+     sourceFile: app/UserController.java
+   - dir: spock-ex1/out/production/classes
+     file: app/DatabaseInterface.class
+     sourceDir: spock-ex1/src/main/java
+     sourceFile: app/DatabaseInterface.java
+   - dir: spock-ex1/out/production/classes
+     file: app/EmailValidator.class
+     sourceDir: spock-ex1/src/main/java
+     sourceFile: app/EmailValidator.java
+   - dir: spock-ex1/out/production/classes
+     file: app/User.class
+     sourceDir: spock-ex1/src/main/java
+     sourceFile: app/User.java
+# Target TGF: 188.0
+#  >methods=4
+#  >complexity=188
+#  >construction=3.0
+#  >dependency=3.0
+ - target:
+   - dir: mocking/mocking_second_exercise/target/classes
+     file: transition/technologies/unittesting/mockito/examples/PersonReportFormatter.class
+     sourceDir: mocking/mocking_second_exercise/src/main/java
+     sourceFile: transition/technologies/unittesting/mockito/examples/PersonReportFormatter.java
+   - dir: mocking/mocking_second_exercise/target/classes
+     file: transition/technologies/unittesting/mockito/examples/Person.class
+     sourceDir: mocking/mocking_second_exercise/src/main/java
+     sourceFile: transition/technologies/unittesting/mockito/examples/Person.java
+   - dir: mocking/mocking_second_exercise/target/classes
+     file: transition/technologies/unittesting/mockito/examples/PersonDao.class
+     sourceDir: mocking/mocking_second_exercise/src/main/java
+     sourceFile: transition/technologies/unittesting/mockito/examples/PersonDao.java
+   - dir: mocking/mocking_second_exercise/target/classes
+     file: transition/technologies/unittesting/mockito/examples/PersonDaoException.class
+     sourceDir: mocking/mocking_second_exercise/src/main/java
+     sourceFile: transition/technologies/unittesting/mockito/examples/PersonDaoException.java
+# Target TGF: 31.5
+#  >methods=2
+#  >complexity=14
+#  >construction=9.0
+#  >dependency=0.25
+ - target:
+   - dir: rxjava/out/test/classes
+     file: com/tt/util/Sleeper.class
+     sourceDir: rxjava/src/test/java
+     sourceFile: com/tt/util/Sleeper.java
+# Target TGF: 261.0
+#  >methods=2
+#  >complexity=29
+#  >construction=9.0
+#  >dependency=1.0
+ - target:
+   - dir: mocking/mocking_second_exercise/target/classes
+     file: transition/technologies/unittesting/basic/fib/Fibonnacci.class
+     sourceDir: mocking/mocking_second_exercise/src/main/java
+     sourceFile: transition/technologies/unittesting/basic/fib/Fibonnacci.java
